@@ -1,73 +1,101 @@
-# React + TypeScript + Vite
+# Taha Tabassum — AI Engineer & Full-Stack Developer Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository hosts the static, premium developer portfolio website for Taha Tabassum, built with React, TypeScript, Tailwind CSS, and Vite. The design is tailored to startup founders, recruiters, and clients, focusing on engineering depth and SaaS aesthetics.
 
-Currently, two official plugins are available:
+## 🚀 Live Demo
+Visit the live portfolio website here: [Taha Tabassum Portfolio](https://github.com/tahatabassum/Taha_portfolio)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🛠️ Technology Stack
+- **Frontend Core**: React 19, TypeScript
+- **Styling**: Tailwind CSS, Google Fonts (Inter & Outfit)
+- **Development Tooling**: Vite, ESLint
+- **Icons**: Lucide React & Custom inline SVGs
+- **Deployment Platform**: Optimized for Vercel / static edge hosting
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 📂 Project Architecture
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+portfolio/
+├── public/                 # Static assets (favicons, images, public resources)
+│   └── taha.png            # Profile Photo
+├── src/
+│   ├── components/         # Modular Section Components
+│   │   ├── ui/             # Reusable UI Elements (Card, Badge, Button)
+│   │   ├── About.tsx       # Bio & Tech Stacks
+│   │   ├── Education.tsx   # Academic degree
+│   │   ├── FeaturedProject.tsx # Advantage AI Case Study
+│   │   ├── Footer.tsx      # Contact details & Profiles
+│   │   ├── Hero.tsx        # Hero banner & Photo container
+│   │   ├── Navbar.tsx      # Responsive sticky navigation
+│   │   ├── Philosophy.tsx  # Development Philosophy
+│   │   ├── Projects.tsx    # Other Projects grid
+│   │   └── Skills.tsx      # Skills Directory
+│   ├── App.tsx             # Main entry point orchestrating all layouts
+│   ├── index.css           # Global CSS variables, scrollbars & keyframes
+│   └── main.tsx            # DOM renderer entrypoint
+├── index.html              # HTML entrypoint, SEO tags & Google Fonts
+├── tailwind.config.js      # Tailwind configurations & custom theme colors
+└── vite.config.ts          # Vite build config
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🌟 Featured Projects
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 1. **Advantage AI — Marketing Creative Audit SaaS**
+A digital marketing creative auditing platform that helps performance marketing agencies identify creative weaknesses before campaign launch.
+* **Tech Stack**: FastAPI, React, Python, Docker, OpenCV, Selenium, Gemini AI.
+* **Engineering Challenges Addressed**:
+  - High-fidelity chronological frame extraction using OpenCV for sequence prompt evaluations.
+  - Undetected-chromedriver Selenium workflows to extract blob-based Meta library ad streams.
+  - Chromium process optimization inside Docker containers to run stably on low-resource cloud hosts.
+
+### 2. **ResumeAI**
+AI-powered resume builder leveraging Gemini AI to compose and optimize professional resumes.
+* **Tech Stack**: React, TypeScript, Node.js, Express.js, Gemini AI, JWT Authentication.
+
+### 3. **Jarvis Voice Assistant**
+Desktop voice assistant integrating workflow automation, OS shell control, speech synthesis, and face recognition.
+* **Tech Stack**: FastAPI, Python, React, Gemini API, Groq API, OpenCV, SpeechRecognition, Three.js.
+
+---
+
+## 💻 Local Setup & Development
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/tahatabassum/Taha_portfolio.git
+cd Taha_portfolio
 ```
+
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Launch Local Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:5173/](http://localhost:5173/) in your browser to view the dev environment.
+
+### 4. Create Production Static Build
+```bash
+npm run build
+```
+The static files will build directly into the `/dist` directory, ready to deploy.
+
+### 5. Preview Production Build Locally
+```bash
+npm run preview
+```
+Previews the built code on [http://localhost:4173/](http://localhost:4173/).
+
+---
+
+## 📄 License
+This project is open-source and available under the MIT License.

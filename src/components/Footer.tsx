@@ -25,19 +25,19 @@ export const Footer: React.FC = () => {
               <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Contact Information</h4>
               <ul className="space-y-2.5 text-xs text-zinc-400">
                 <li className="flex items-center gap-2">
-                  <Mail className="h-4.5 w-4.5 text-cyan-400 shrink-0" />
+                  <Mail className="h-5 w-5 text-cyan-400 shrink-0" />
                   <a href="mailto:tahatabassum9@gmail.com" className="hover:text-zinc-250 transition-colors">
                     tahatabassum9@gmail.com
                   </a>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Phone className="h-4.5 w-4.5 text-indigo-400 shrink-0" />
+                  <Phone className="h-5 w-5 text-indigo-400 shrink-0" />
                   <a href="tel:+923498677945" className="hover:text-zinc-250 transition-colors">
                     +92 349 8677945
                   </a>
                 </li>
                 <li className="flex items-center gap-2">
-                  <MapPin className="h-4.5 w-4.5 text-cyan-400 shrink-0" />
+                  <MapPin className="h-5 w-5 text-cyan-400 shrink-0" />
                   <span>Faisalabad, Pakistan</span>
                 </li>
               </ul>
