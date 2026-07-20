@@ -1,8 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
 import { parseTechStack } from '@/lib/utils';
-import { INITIAL_DEFAULT_PROJECTS, ProjectItem } from '@/lib/defaultProjects';
+import { getAllProjects } from '@/lib/getProjects';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Card } from '@/components/ui/Card';
@@ -12,31 +11,7 @@ import { ArrowLeft, ExternalLink, Sparkles, Pin } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 
 export default async function AllProjectsPage() {
-  let dbProjects: ProjectItem[] = [];
-  try {
-    const records = await prisma.project.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-    dbProjects = records.map((r) => ({
-      id: r.id,
-      name: r.name,
-      description: r.description,
-      liveUrl: r.liveUrl,
-      githubUrl: r.githubUrl,
-      techStack: r.techStack,
-      createdAt: r.createdAt.toISOString(),
-    }));
-  } catch (error) {
-    console.error('Database query error on /projects page:', error);
-  }
-
-  // Combine DB projects with default projects (ResumeAI & Jarvis)
-  const combinedProjects: ProjectItem[] = [...dbProjects];
-  for (const defProj of INITIAL_DEFAULT_PROJECTS) {
-    if (!combinedProjects.some((p) => p.id === defProj.id || p.name.toLowerCase() === defProj.name.toLowerCase())) {
-      combinedProjects.push(defProj);
-    }
-  }
+  const combinedProjects = await getAllProjects();
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">

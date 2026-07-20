@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdminAuthenticated } from '@/lib/auth';
 import { formatUrl } from '@/lib/utils';
-import { INITIAL_DEFAULT_PROJECTS, ProjectItem } from '@/lib/defaultProjects';
-import { inMemoryProjectsStore, addInMemoryProject } from '@/lib/inMemoryProjectsStore';
+import { getAllProjects } from '@/lib/getProjects';
+import { ProjectItem } from '@/lib/defaultProjects';
+import { addInMemoryProject } from '@/lib/inMemoryProjectsStore';
 
 export async function GET(request: Request) {
   try {
@@ -11,41 +12,12 @@ export async function GET(request: Request) {
     const limitParam = searchParams.get('limit');
     const limit = limitParam ? Math.min(Math.max(parseInt(limitParam, 10) || 0, 1), 50) : undefined;
 
-    let dbProjects: ProjectItem[] = [];
-
-    try {
-      const records = await prisma.project.findMany({
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-      });
-      dbProjects = records.map((r) => ({
-        id: r.id,
-        name: r.name,
-        description: r.description,
-        liveUrl: r.liveUrl,
-        githubUrl: r.githubUrl,
-        techStack: r.techStack,
-        createdAt: r.createdAt.toISOString(),
-      }));
-    } catch (e) {
-      console.warn('Prisma DB read failed, falling back to in-memory store:', e);
-      dbProjects = [...inMemoryProjectsStore];
-    }
-
-    // Combine DB/InMemory projects with default projects if not present
-    const combinedProjects: ProjectItem[] = [...dbProjects];
-    for (const defaultProj of INITIAL_DEFAULT_PROJECTS) {
-      if (!combinedProjects.some((p) => p.id === defaultProj.id || p.name.toLowerCase() === defaultProj.name.toLowerCase())) {
-        combinedProjects.push(defaultProj);
-      }
-    }
-
-    const finalProjects = limit ? combinedProjects.slice(0, limit) : combinedProjects;
-
-    return NextResponse.json({ success: true, projects: finalProjects });
+    const projects = await getAllProjects(limit);
+    return NextResponse.json({ success: true, projects });
   } catch (error) {
     console.error('Error fetching projects:', error);
-    return NextResponse.json({ success: true, projects: INITIAL_DEFAULT_PROJECTS });
+    const fallbackProjects = await getAllProjects();
+    return NextResponse.json({ success: true, projects: fallbackProjects });
   }
 }
 
