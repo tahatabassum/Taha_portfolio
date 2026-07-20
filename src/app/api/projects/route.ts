@@ -1,15 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdminAuthenticated } from '@/lib/auth';
-
-function isValidUrl(urlString: string): boolean {
-  try {
-    const parsed = new URL(urlString);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-  } catch {
-    return false;
-  }
-}
+import { formatUrl } from '@/lib/utils';
+import { INITIAL_DEFAULT_PROJECTS, ProjectItem } from '@/lib/defaultProjects';
+import { inMemoryProjectsStore, addInMemoryProject } from '@/lib/inMemoryProjectsStore';
 
 export async function GET(request: Request) {
   try {
@@ -17,24 +11,41 @@ export async function GET(request: Request) {
     const limitParam = searchParams.get('limit');
     const limit = limitParam ? Math.min(Math.max(parseInt(limitParam, 10) || 0, 1), 50) : undefined;
 
-    const projects = await prisma.project.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        liveUrl: true,
-        githubUrl: true,
-        techStack: true,
-        createdAt: true,
-      },
-    });
+    let dbProjects: ProjectItem[] = [];
 
-    return NextResponse.json({ success: true, projects });
+    try {
+      const records = await prisma.project.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+      });
+      dbProjects = records.map((r) => ({
+        id: r.id,
+        name: r.name,
+        description: r.description,
+        liveUrl: r.liveUrl,
+        githubUrl: r.githubUrl,
+        techStack: r.techStack,
+        createdAt: r.createdAt.toISOString(),
+      }));
+    } catch (e) {
+      console.warn('Prisma DB read failed, falling back to in-memory store:', e);
+      dbProjects = [...inMemoryProjectsStore];
+    }
+
+    // Combine DB/InMemory projects with default projects if not present
+    const combinedProjects: ProjectItem[] = [...dbProjects];
+    for (const defaultProj of INITIAL_DEFAULT_PROJECTS) {
+      if (!combinedProjects.some((p) => p.id === defaultProj.id || p.name.toLowerCase() === defaultProj.name.toLowerCase())) {
+        combinedProjects.push(defaultProj);
+      }
+    }
+
+    const finalProjects = limit ? combinedProjects.slice(0, limit) : combinedProjects;
+
+    return NextResponse.json({ success: true, projects: finalProjects });
   } catch (error) {
-    console.error('Error fetching projects from DB:', error);
-    return NextResponse.json({ success: true, projects: [] });
+    console.error('Error fetching projects:', error);
+    return NextResponse.json({ success: true, projects: INITIAL_DEFAULT_PROJECTS });
   }
 }
 
@@ -56,36 +67,58 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Description is required (max 3,000 characters)' }, { status: 400 });
     }
 
-    if (!githubUrl || typeof githubUrl !== 'string' || !isValidUrl(githubUrl)) {
-      return NextResponse.json({ success: false, message: 'Valid GitHub URL is required' }, { status: 400 });
+    const formattedGithubUrl = formatUrl(githubUrl);
+    if (!formattedGithubUrl) {
+      return NextResponse.json({ success: false, message: 'Valid GitHub repository URL is required' }, { status: 400 });
     }
 
-    if (liveUrl && (typeof liveUrl !== 'string' || !isValidUrl(liveUrl))) {
-      return NextResponse.json({ success: false, message: 'Live URL must be a valid http or https URL' }, { status: 400 });
-    }
+    const formattedLiveUrl = formatUrl(liveUrl);
 
     // Format & cap tech stack array at 20 items
     let stackArray: string[] = [];
     if (Array.isArray(techStack)) {
-      stackArray = techStack.map(s => String(s).trim()).filter(Boolean);
+      stackArray = techStack.map((s) => String(s).trim()).filter(Boolean);
     } else if (typeof techStack === 'string') {
-      stackArray = techStack.split(',').map(s => s.trim()).filter(Boolean);
+      stackArray = techStack.split(',').map((s) => s.trim()).filter(Boolean);
     }
     stackArray = stackArray.slice(0, 20);
+    const techStackJson = JSON.stringify(stackArray);
 
-    const newProject = await prisma.project.create({
-      data: {
+    let createdProject: ProjectItem;
+
+    try {
+      const record = await prisma.project.create({
+        data: {
+          name: name.trim(),
+          description: description.trim(),
+          liveUrl: formattedLiveUrl,
+          githubUrl: formattedGithubUrl,
+          techStack: techStackJson,
+        },
+      });
+      createdProject = {
+        id: record.id,
+        name: record.name,
+        description: record.description,
+        liveUrl: record.liveUrl,
+        githubUrl: record.githubUrl,
+        techStack: record.techStack,
+        createdAt: record.createdAt.toISOString(),
+      };
+    } catch (dbError) {
+      console.warn('Prisma DB write failed, storing in in-memory fallback store:', dbError);
+      createdProject = addInMemoryProject({
         name: name.trim(),
         description: description.trim(),
-        liveUrl: liveUrl ? liveUrl.trim() : null,
-        githubUrl: githubUrl.trim(),
-        techStack: JSON.stringify(stackArray),
-      },
-    });
+        liveUrl: formattedLiveUrl,
+        githubUrl: formattedGithubUrl,
+        techStack: techStackJson,
+      });
+    }
 
-    return NextResponse.json({ success: true, project: newProject }, { status: 201 });
-  } catch (error) {
+    return NextResponse.json({ success: true, project: createdProject }, { status: 201 });
+  } catch (error: any) {
     console.error('Error creating project:', error);
-    return NextResponse.json({ success: false, message: 'Failed to create project' }, { status: 500 });
+    return NextResponse.json({ success: false, message: error?.message || 'Failed to create project' }, { status: 500 });
   }
 }

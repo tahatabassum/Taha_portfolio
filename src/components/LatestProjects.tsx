@@ -44,23 +44,13 @@ export const LatestProjects: React.FC = () => {
         
         {/* Section Header */}
         <AnimationWrapper direction="up" delay={0.1}>
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6 text-left">
-            <div>
-              <span className="px-3 py-1 rounded-md text-xs font-extrabold uppercase tracking-widest bg-blue-100 text-blue-700 border border-blue-200 inline-block mb-3">
-                Other Work
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-bold font-display text-slate-900">
-                Latest Products & Tools
-              </h2>
-            </div>
-            
-            <Link
-              href="/projects"
-              className="inline-flex items-center space-x-2 text-sm font-bold text-blue-600 hover:text-orange-600 transition-colors self-start sm:self-auto group"
-            >
-              <span>View All Projects</span>
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+          <div className="text-left mb-16 space-y-2">
+            <span className="px-3 py-1 rounded-md text-xs font-extrabold uppercase tracking-widest bg-blue-100 text-blue-700 border border-blue-200 inline-block">
+              Other Work
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold font-display text-slate-900">
+              Latest Products & Tools
+            </h2>
           </div>
         </AnimationWrapper>
 

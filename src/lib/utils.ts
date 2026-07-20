@@ -17,3 +17,14 @@ export function parseTechStack(techStack: string | string[]): string[] {
   }
   return [techStack];
 }
+
+/**
+ * Ensures URLs have http:// or https:// protocol prepended automatically.
+ */
+export function formatUrl(url?: string | null): string | null {
+  if (!url || typeof url !== 'string') return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}

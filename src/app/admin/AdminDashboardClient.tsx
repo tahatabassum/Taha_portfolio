@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PlusCircle, Trash2, LogOut, ExternalLink, Github, CheckCircle2, ShieldAlert, Sparkles } from 'lucide-react';
-import { parseTechStack } from '@/lib/utils';
+import { parseTechStack, formatUrl } from '@/lib/utils';
 
 interface ProjectItem {
   id: string;
@@ -29,18 +29,27 @@ export default function AdminDashboardClient({ initialProjects }: { initialProje
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatusMsg(null);
+
+    const formattedGithub = formatUrl(githubUrl);
+    if (!name.trim() || !formattedGithub || !description.trim() || !techStackInput.trim()) {
+      setStatusMsg({ type: 'error', text: 'Please fill in all required fields (Name, GitHub URL, Tech Stack, Description).' });
+      return;
+    }
+
     setSubmitting(true);
 
     try {
+      const formattedLive = formatUrl(liveUrl);
+
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name,
-          description,
-          liveUrl: liveUrl || null,
-          githubUrl,
-          techStack: techStackInput,
+          name: name.trim(),
+          description: description.trim(),
+          liveUrl: formattedLive,
+          githubUrl: formattedGithub,
+          techStack: techStackInput.trim(),
         }),
       });
 
@@ -59,7 +68,7 @@ export default function AdminDashboardClient({ initialProjects }: { initialProje
         setStatusMsg({ type: 'error', text: data.message || 'Failed to create project' });
       }
     } catch (err) {
-      setStatusMsg({ type: 'error', text: 'An unexpected error occurred.' });
+      setStatusMsg({ type: 'error', text: 'An unexpected error occurred while saving the project.' });
     } finally {
       setSubmitting(false);
     }
@@ -145,7 +154,7 @@ export default function AdminDashboardClient({ initialProjects }: { initialProje
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Smart Vision Analytics"
+                  placeholder="e.g. Dual Craft Agency Site"
                   required
                   className="w-full px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-blue-600 focus:bg-white transition-all"
                 />
@@ -157,10 +166,10 @@ export default function AdminDashboardClient({ initialProjects }: { initialProje
                   GitHub Repo URL *
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   value={githubUrl}
                   onChange={(e) => setGithubUrl(e.target.value)}
-                  placeholder="https://github.com/tahatabassum/repo-name"
+                  placeholder="github.com/tahatabassum/Dual-Craft-Agency"
                   required
                   className="w-full px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-blue-600 focus:bg-white transition-all"
                 />
@@ -172,10 +181,10 @@ export default function AdminDashboardClient({ initialProjects }: { initialProje
                   Live URL (Optional)
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   value={liveUrl}
                   onChange={(e) => setLiveUrl(e.target.value)}
-                  placeholder="https://my-project-demo.vercel.app"
+                  placeholder="dualcraft.vercel.app"
                   className="w-full px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-blue-600 focus:bg-white transition-all"
                 />
               </div>
@@ -189,7 +198,7 @@ export default function AdminDashboardClient({ initialProjects }: { initialProje
                   type="text"
                   value={techStackInput}
                   onChange={(e) => setTechStackInput(e.target.value)}
-                  placeholder="React, FastAPI, OpenCV, Gemini AI, Docker"
+                  placeholder="React 19, TypeScript, Vite, TailwindCSS, FastAPI"
                   required
                   className="w-full px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-blue-600 focus:bg-white transition-all"
                 />

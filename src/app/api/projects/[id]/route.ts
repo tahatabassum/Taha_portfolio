@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdminAuthenticated } from '@/lib/auth';
+import { deleteInMemoryProject } from '@/lib/inMemoryProjectsStore';
 
 export async function DELETE(
   request: Request,
@@ -17,19 +18,25 @@ export async function DELETE(
       return NextResponse.json({ success: false, message: 'Invalid project ID format' }, { status: 400 });
     }
 
-    const existing = await prisma.project.findUnique({
-      where: { id },
-    });
+    let deletedFromDb = false;
 
-    if (!existing) {
-      return NextResponse.json({ success: false, message: 'Project not found' }, { status: 404 });
+    try {
+      const existing = await prisma.project.findUnique({ where: { id } });
+      if (existing) {
+        await prisma.project.delete({ where: { id } });
+        deletedFromDb = true;
+      }
+    } catch (e) {
+      console.warn('Prisma DB delete failed or not present, checking in-memory store:', e);
     }
 
-    await prisma.project.delete({
-      where: { id },
-    });
+    const deletedFromMemory = deleteInMemoryProject(id);
 
-    return NextResponse.json({ success: true, message: 'Project deleted successfully' });
+    if (deletedFromDb || deletedFromMemory) {
+      return NextResponse.json({ success: true, message: 'Project deleted successfully' });
+    }
+
+    return NextResponse.json({ success: false, message: 'Project not found' }, { status: 404 });
   } catch (error) {
     console.error('Error deleting project:', error);
     return NextResponse.json({ success: false, message: 'Failed to delete project' }, { status: 500 });

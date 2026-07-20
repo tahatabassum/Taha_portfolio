@@ -1,8 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import { Project } from '@prisma/client';
 import { parseTechStack } from '@/lib/utils';
+import { INITIAL_DEFAULT_PROJECTS, ProjectItem } from '@/lib/defaultProjects';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Card } from '@/components/ui/Card';
@@ -12,13 +12,30 @@ import { ArrowLeft, ExternalLink, Sparkles, Pin } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 
 export default async function AllProjectsPage() {
-  let dbProjects: Project[] = [];
+  let dbProjects: ProjectItem[] = [];
   try {
-    dbProjects = await prisma.project.findMany({
+    const records = await prisma.project.findMany({
       orderBy: { createdAt: 'desc' },
     });
+    dbProjects = records.map((r) => ({
+      id: r.id,
+      name: r.name,
+      description: r.description,
+      liveUrl: r.liveUrl,
+      githubUrl: r.githubUrl,
+      techStack: r.techStack,
+      createdAt: r.createdAt.toISOString(),
+    }));
   } catch (error) {
     console.error('Database query error on /projects page:', error);
+  }
+
+  // Combine DB projects with default projects (ResumeAI & Jarvis)
+  const combinedProjects: ProjectItem[] = [...dbProjects];
+  for (const defProj of INITIAL_DEFAULT_PROJECTS) {
+    if (!combinedProjects.some((p) => p.id === defProj.id || p.name.toLowerCase() === defProj.name.toLowerCase())) {
+      combinedProjects.push(defProj);
+    }
   }
 
   return (
@@ -50,7 +67,7 @@ export default async function AllProjectsPage() {
 
               <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold self-start sm:self-auto">
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>{dbProjects.length + 1} Total Products</span>
+                <span>{combinedProjects.length + 1} Total Products</span>
               </div>
             </div>
           </div>
@@ -127,69 +144,63 @@ export default async function AllProjectsPage() {
           {/* Database Projects Grid */}
           <div className="space-y-6 text-left">
             <h2 className="text-lg font-bold font-display text-slate-900">
-              Additional Published Work
+              Published Engineering Work ({combinedProjects.length})
             </h2>
 
-            {dbProjects.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-500 text-sm font-normal">
-                No additional projects added yet. Use the admin dashboard to populate the portfolio repository.
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {dbProjects.map((project, idx) => {
-                  const techList = parseTechStack(project.techStack);
-                  const cardBorder = idx % 3 === 0 ? 'border-t-4 border-t-blue-500' : idx % 3 === 1 ? 'border-t-4 border-t-emerald-500' : 'border-t-4 border-t-orange-500';
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {combinedProjects.map((project, idx) => {
+                const techList = parseTechStack(project.techStack);
+                const cardBorder = idx % 3 === 0 ? 'border-t-4 border-t-blue-500' : idx % 3 === 1 ? 'border-t-4 border-t-emerald-500' : 'border-t-4 border-t-orange-500';
 
-                  return (
-                    <Card key={project.id} hoverEffect={true} className={`bg-white border-slate-200 p-6 flex flex-col justify-between h-full shadow-sm ${cardBorder}`}>
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between gap-4">
-                          <h3 className="text-xl font-bold font-display text-slate-900">
-                            {project.name}
-                          </h3>
-                          <div className="flex items-center space-x-2">
+                return (
+                  <Card key={project.id} hoverEffect={true} className={`bg-white border-slate-200 p-6 flex flex-col justify-between h-full shadow-sm ${cardBorder}`}>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <h3 className="text-xl font-bold font-display text-slate-900">
+                          {project.name}
+                        </h3>
+                        <div className="flex items-center space-x-2">
+                          <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition-all"
+                            title="GitHub Repository"
+                          >
+                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                              <path d="M9 18c-4.51 2-5-2-7-2" />
+                            </svg>
+                          </a>
+                          {project.liveUrl && (
                             <a
-                              href={project.githubUrl}
+                              href={project.liveUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition-all"
-                              title="GitHub Repository"
+                              className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all"
+                              title="Live Demo"
                             >
-                              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-                                <path d="M9 18c-4.51 2-5-2-7-2" />
-                              </svg>
+                              <ExternalLink className="h-4 w-4" />
                             </a>
-                            {project.liveUrl && (
-                              <a
-                                href={project.liveUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all"
-                                title="Live Demo"
-                              >
-                                <ExternalLink className="h-4 w-4" />
-                              </a>
-                            )}
-                          </div>
+                          )}
                         </div>
-
-                        <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                          {project.description}
-                        </p>
                       </div>
 
-                      <div className="flex flex-wrap gap-1.5 pt-6 border-t border-slate-100 mt-6">
-                        {techList.map((t, i) => {
-                          const variant = i % 3 === 0 ? 'blue' : i % 3 === 1 ? 'green' : 'orange';
-                          return <Badge key={i} variant={variant} className="text-[10px] py-0.5">{t}</Badge>;
-                        })}
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
+                      <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                        {project.description}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 pt-6 border-t border-slate-100 mt-6">
+                      {techList.map((t, i) => {
+                        const variant = i % 3 === 0 ? 'blue' : i % 3 === 1 ? 'green' : 'orange';
+                        return <Badge key={i} variant={variant} className="text-[10px] py-0.5">{t}</Badge>;
+                      })}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
 
         </div>
