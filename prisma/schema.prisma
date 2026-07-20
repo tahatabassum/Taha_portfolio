@@ -1,0 +1,20 @@
+// Prisma Schema for Portfolio v2
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  liveUrl     String?
+  githubUrl   String
+  techStack   String   // JSON serialized array e.g. "[\"React\",\"FastAPI\"]"
+  createdAt   DateTime @default(now())
+}

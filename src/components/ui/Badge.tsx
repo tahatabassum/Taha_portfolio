@@ -2,7 +2,7 @@ import React from 'react';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'default' | 'accent' | 'indigo' | 'outline';
+  variant?: 'default' | 'blue' | 'green' | 'orange' | 'indigo' | 'outline' | 'success';
   className?: string;
 }
 
@@ -11,13 +11,16 @@ export const Badge: React.FC<BadgeProps> = ({
   variant = 'default',
   className = '' 
 }) => {
-  const baseStyle = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide transition-colors";
+  const baseStyle = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide transition-colors";
   
   const variants = {
-    default: "bg-zinc-800 text-zinc-300 border border-zinc-700",
-    accent: "bg-cyan-950/50 text-cyan-400 border border-cyan-800/50 glow-text-cyan",
-    indigo: "bg-indigo-950/50 text-indigo-400 border border-indigo-800/50 glow-text-indigo",
-    outline: "bg-transparent text-zinc-400 border border-zinc-800 hover:border-zinc-700",
+    default: "bg-slate-100 text-slate-700 border border-slate-200",
+    blue: "bg-blue-50 text-blue-700 border border-blue-200/80 font-bold",
+    green: "bg-emerald-50 text-emerald-700 border border-emerald-200/80 font-bold",
+    orange: "bg-orange-50 text-orange-700 border border-orange-200/80 font-bold",
+    indigo: "bg-indigo-50 text-indigo-700 border border-indigo-200/80 font-bold",
+    outline: "bg-white text-slate-700 border border-slate-200 hover:border-slate-300",
+    success: "bg-emerald-50 text-emerald-700 border border-emerald-200/80 font-bold",
   };
 
   return (

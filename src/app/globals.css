@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+  
+  body {
+    @apply font-sans antialiased bg-slate-50 text-slate-900 overflow-x-hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight text-slate-900;
+  }
+}
+
+/* Multi-color Gradient Utilities */
+.gradient-text-hero {
+  @apply bg-gradient-to-r from-blue-600 via-emerald-600 to-orange-500 bg-clip-text text-transparent;
+}
+
+.gradient-text-blue-green {
+  @apply bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent;
+}
+
+.gradient-text-orange-blue {
+  @apply bg-gradient-to-r from-orange-500 to-blue-600 bg-clip-text text-transparent;
+}
+
+/* Tri-Color Top Border Accent */
+.border-gradient-top {
+  position: relative;
+}
+.border-gradient-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #2563eb 0%, #10b981 50%, #f97316 100%);
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
+/* Card Hover Shadows with Custom Accent Glows */
+.glow-card-blue:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 12px 28px -5px rgba(37, 99, 235, 0.12);
+  transform: translateY(-2px);
+}
+
+.glow-card-green:hover {
+  border-color: #a7f3d0;
+  box-shadow: 0 12px 28px -5px rgba(16, 185, 129, 0.12);
+  transform: translateY(-2px);
+}
+
+.glow-card-orange:hover {
+  border-color: #fed7aa;
+  box-shadow: 0 12px 28px -5px rgba(249, 115, 22, 0.14);
+  transform: translateY(-2px);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
