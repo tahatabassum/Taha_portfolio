@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+import { Project } from '@prisma/client';
 import { parseTechStack } from '@/lib/utils';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -11,9 +12,14 @@ import { ArrowLeft, ExternalLink, Sparkles, Pin } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 
 export default async function AllProjectsPage() {
-  const dbProjects = await prisma.project.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+  let dbProjects: Project[] = [];
+  try {
+    dbProjects = await prisma.project.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (error) {
+    console.error('Database query error on /projects page:', error);
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
