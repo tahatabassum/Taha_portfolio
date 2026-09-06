@@ -49,6 +49,11 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased bg-slate-50 text-slate-900 selection:bg-blue-500 selection:text-white">
         {children}
+        <script
+          src="https://cdn.zanderio.ai/widget/loader.js"
+          data-id="wdg_rt9llvjKQ7c2pga5SdMWhhfU"
+          defer
+        ></script>
       </body>
     </html>
   );
